@@ -6,7 +6,7 @@ var request = require('request');
 router.get('/', function(req, res, next) {
 
   console.log("Requesting devices from API");
-  request("http://192.168.174.150:8080/thing-web/devices", function(error, response, body) {
+  request("http://localhost:9998/api/devices/", function(error, response, body) {
   	if(!error && response.statusCode == 200) {
   		var deviceArray = JSON.parse(body);
   		res.render('index', { title: 'Express', devices: JSON.stringify(deviceArray) });
