@@ -3,8 +3,10 @@ html
     head
         title Device Management
         link(href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css', rel='stylesheet')
+        link(href='stylesheets/style.css', rel='stylesheet')
         script(type='text/javascript', src="https://code.jquery.com/jquery-2.1.3.js")
-        script(type='text/javascript', src="javascripts/canvasjs.min.js")
+        script(type='text/javascript', src="javascripts/management.js")
+
         
     body
         div.container
@@ -15,349 +17,52 @@ html
         div(class="panel panel-default"  style="float: none; width: 960px; margin-left:auto; margin-right:auto;")  
             div(class="panel-heading") Available Devices     
             div(class="panel-body")
-                ul(id="devices")
+                ul#devices
+                    each device, index in devices
+                        img(src="images/device_icon.png")
+                        li#device
+                            #device_id Device ID: #{device.sessionId}
+                            |     
+                            #manufacturer Manufacturer: #{device.manufacturer}
+                            |     
+                            #model Model: #{device.model}
+                            |     
+                            #geo Geo-location
+                              #longitude Longitude: #{device.geo.longitude}
+                              |       &#x9;
+                              #latitude Latitude: #{device.geo.latitude}
+                            | 
+                            #sensors
+                              each sensor, sindex in device.sensors
+                                  #sensor Sensor
+                                    #sensor_id Sensor ID: #{sensor.id}
+                                    |         
+                                    #sensor_name Name: #{sensor.name}
+                                    |         
+                                    #sensor_sense Capability: #{sensor.sense}
+                                    |         
+                                    #sensor_unit Unit: #{sensor.unit}
+                                    |         
+                                    #sensor_type Type: #{sensor.type}
+                                    |         
+                                    #sensor_stream
+                                      #sensor_chart
+                                      button Start stream
+                                      |           
+                                      button Stop stream
+                            |     
+                            #actuators
+                              each actuator, aindex in device.actuators
+                                  #actuator Actuator
+                                    #actuator_id Actuator ID: #{actuator.id}
+                                    |         
+                                    #actuator_name Name: #{actuator.name}
+                                    |         
+                                    #options Options
+                                      each option in actuator.options
+                                        button #{option}
 
 
-        script(type='text/javascript').
-            $(function() {
-                loadDevices();
-            })
-
-            var Chart = function() {
-                console.log("Created new Chart");
-                this.dps = [];
-                this.model;
-                this.counter = 0;
-                this.ready = false;
-            }
-            Chart.prototype.load = function(id, title, xtitle, ytitle) {
-                console.log("load called, with parameters [" + id + ", " + title + ", " + xtitle + ", " + ytitle + "]");
-                this.model = new CanvasJS.Chart(id, {
-                        title : { text: title},
-                        axisX : { title: xtitle },
-                        axisY : { title: ytitle },
-                        data : [{
-                            type: "line",
-                            dataPoints : this.dps
-                            }]
-                        });
-                console.log("loaded new chart for resource " + id + " with model " + this.model);
-                this.model.render();
-                this.ready = true;
-            }
-            Chart.prototype.isReady = function(){
-                console.log("isReady called, returning " + this.ready);
-                return this.ready;
-            }
-            Chart.prototype.update = function(y_) {
-                console.log("update called, adding " + y_ + " data point. Counter is currently set to " + this.counter);
-                this.dps.push({x: this.counter,y: y_});
-                this.counter++;
-                if(this.dps.length > 10) {
-                    this.dps.shift();
-                }
-                this.model.render();
-            }
-
-            function loadDevices() {
-                var deviceArray = !{devices};
-                var devicesElement = document.getElementById("devices");
-                // iterate through the devices and create & populate the relavent DOM elements
-                for(var _i = 0; _i < deviceArray.length; _i++) {
-
-                    (function(i) {
-                    //=================================================
-                    //  Prerequiste stuff
-                    //=================================================
-                    // create base list element
-                    var uuid = deviceArray[i].sessionId;
-                    var element = "listElement" + uuid;
-                    var device_div_li = document.createElement("li");
-                    device_div_li.id = element;
-                    // device icon
-                    var device_icon = document.createElement("img");
-                    device_icon.src = "images/device_icon.png";
-                    device_icon.style.width = "120px";
-                    device_icon.style.margin = "15px";
-                    device_icon.onclick = function() {
-                        console.log("toggling " + "#" + element + " .device");
-                        $("#" + element + " .device").toggle();
-                    };
-                    // add icon to list element
-                    device_div_li.appendChild(device_icon);
-                    device_div_li.setAttribute("style", "list-style:none;");
-                    //=================================================
-                    // End prerequiste stuff
-                    //=================================================
-
-
-
-
-                    //=================================================
-                    // Device root properties
-                    //=================================================
-                    var device_div = document.createElement("div");
-                    device_div.className = "device";
-                    device_div.innerHTML = "<b><u>DEVICE:</u></b>";
-                    device_div.setAttribute("style", "display: none;");
-                    // device id
-                    var device_id = document.createElement("div");
-                    device_id.className = "device_id";
-                    var deviceId = deviceArray[i].sessionId   // Device ID
-                    device_id.innerHTML =  "<strong>ID:</strong> " + deviceId;
-                    // device manufacturer
-                    var device_man = document.createElement("div");
-                    device_man.className = "manufacturer";
-                    device_man.innerHTML = "<strong>Manufacturer:</strong> " + deviceArray[i].manufacturer;
-                    // device model
-                    var device_mod = document.createElement("div");
-                    device_mod.className = "model"
-                    device_mod.innerHTML = "<strong>Model:</strong> " + deviceArray[i].model;
-                    // geo location
-                    var device_geo = document.createElement("div");
-                    device_geo.className = "geo-location";
-                    var device_geo_lon = document.createElement("div");
-                    device_geo_lon.className = "longitude";
-                    device_geo_lon.innerHTML = "<strong>Longitude:</strong> " + deviceArray[i].geo.longitude;
-                    var device_geo_lat = document.createElement("div");
-                    device_geo_lat.className = "latitude";
-                    device_geo_lat.innerHTML = "<strong>Latitude:</strong> " + deviceArray[i].geo.latitude;
-                    device_geo.appendChild(device_geo_lon);
-                    device_geo.appendChild(device_geo_lat);
-                    // add sub divs to device div
-                    device_div.appendChild(device_id);
-                    device_div.appendChild(device_man);
-                    device_div.appendChild(device_mod);
-                    device_div.appendChild(device_geo);
-                    //=================================================
-                    // End root device section
-                    //=================================================
-
-
-
-                    //=================================================
-                    // Handle sensors
-                    //=================================================
-                    var sensorArray = deviceArray[i].sensors;
-                    var sensors_div = document.createElement("div");
-                    sensors_div.innerHTML = "<b><u>SENSORS:</u></b>";
-                    sensors_div.id = "sensors_div";
-
-                    /* FOR EACH SENSOR */
-                    for(var _j = 0; _j < sensorArray.length; _j++) {
-
-                        (function(j) {
-                        // SSE source
-                        var eventSource = null;
-                        // create base div for each sensor
-                        var sensor_div =  document.createElement("div");
-                        // sensor id
-                        var sensor_id = document.createElement("div");
-                        var sensorId = sensorArray[j].id; // Sensor ID
-                        sensor_div.id = "sensor"+sensorId+"_div";
-                        sensor_id.className = "sensor_id";
-                        sensor_id.innerHTML = "<strong>ID:</strong> " + sensorId;
-                        // sensor name
-                        var sensor_name = document.createElement("div");
-                        sensor_name.innerHTML = "<strong>Name:</strong> " + sensorArray[j].name;
-                        sensor_name.className = "name";
-                        // sensor sense
-                        var sensor_sense = document.createElement("div");
-                        sensor_sense.className = "sense";
-                        sensor_sense.innerHTML = "<strong>Sense:</strong> " + sensorArray[j].sense;
-                        // sensor unit
-                        var sensor_unit = document.createElement("div");
-                        var sensorUnit = sensorArray[j].unit;
-                        sensor_unit.className = "unit";
-                        sensor_unit.innerHTML = "<strong>Unit:</strong> " + sensorUnit;
-                        // sensor type
-                        var sensor_type = document.createElement("div");
-                        sensor_type.className = "type";
-                        sensor_type.innerHTML = "<strong>Type:</strong> " + sensorArray[j].type;
-                        // add sub divs to sensor base div
-                        sensor_div.appendChild(sensor_id);
-                        sensor_div.appendChild(sensor_name);
-                        sensor_div.appendChild(sensor_sense);
-                        sensor_div.appendChild(sensor_unit);
-                        sensor_div.appendChild(sensor_type);
-     
-                        /* LIVE STREAM */
-                        var liveStream = document.createElement("div");
-                        liveStream.id = "liveStream"+sensorId;
-                        liveStream.style.height = "300px";
-                        liveStream.style.width = "100%";
-                        //$("liveStream").hide();
-                        sensor_div.appendChild(liveStream);
-
-                        /* LIVE STREAM BUTTONS... */
-
-                        // START STREAM BUTTON
-                        var startStreamBtn = document.createElement("button");
-                        startStreamBtn.className = "btn";
-                        startStreamBtn.innerHTML = "Start streaming data";
-                        startStreamBtn.style.margin = "5px";
-
-                        var chart = new Chart();
-
-                        // Add eventlistener for click events
-                        startStreamBtn.addEventListener('click', function(deviceid, sensorid, graph) {
-
-                            return function() {
-                                console.log("Starting stream on sensor " + sensorId);
-                              
-                                if(!graph.isReady()) {
-                                    graph.load("liveStream"+sensorid, "Live Sensor " + sensorid + " Data", "Count", sensorUnit);
-                                }
-
-                                //$("liveStream").show();
-
-                                // Create a new connection to SSE producer
-                                eventSource = new EventSource("http://192.168.174.150:8080/thing-web/devices/"+deviceid+"/sensors/"+sensorid+"/stream");
-
-                                // On connection open
-                                eventSource.onopen = function() {
-                                    console.log("opening client SSE connection for resource: devices/"+deviceid+"/sensors/"+sensorid+"/stream");
-                                    //$("#liveStream").text("Connecting...");
-                                };
-
-                                // On new message from producer
-                                eventSource.onmessage = function(message) {
-                                    /* New data sent from server
-                                       Extract JSON and update chart */
-
-                                    console.log("new message received on resource: devices/"+deviceid+"/sensors/"+sensorid+"/stream");
-                                    var json = message.data;
-                                    data = JSON.parse(json);
-                                    graph.update(data.data);
-                                };
-
-                                // On error from producer
-                                eventSource.onerror = function(error) {
-                                    console.log("error: " + error.data + " on resource: devices/"+deviceid+"/sensors/"+sensorid+"/stream");
-                                };
-                            }(deviceId, sensorId, chart);
-                            
-                        });
-                        // add button to sensor
-                        sensor_div.appendChild(startStreamBtn);
-
-
-                        // STOP STREAM BUTTON
-                        var stopStreamBtn = document.createElement("button");
-                        stopStreamBtn.className = "btn";
-                        stopStreamBtn.innerHTML = "Stop streaming data";
-                        stopStreamBtn.style.margin = "5px";
-                        // Add an eventlistener for click events
-                        stopStreamBtn.addEventListener('click', function() {
-
-                            // Construct a HTTP POST request to send to SSE source
-                            var http = new XMLHttpRequest();
-                            var url = "http://192.168.174.150:8080/thing-web/devices/" + deviceId + "/sensors/" + sensorId+ "/stream";
-                            var params = "";
-                            http.open("POST", url, true);
-
-                            //Send the proper header information along with the request
-                            http.setRequestHeader("Content-type", "application/json");
-
-                            http.onreadystatechange = function() {//Call a function when the state changes.
-                                if(http.readyState == 4 && http.status == 200) {
-                                    console.log(http.responseText);
-                                }
-                            }
-                            http.send(params);
-                            console.log("closing client SSE connection");
-                            // Close client SSE connection
-                            eventSource.close();
-                            //$("#liveStream").hide();
-                            delete eventSource;
-                        })
-                        sensor_div.appendChild(stopStreamBtn);
-                        sensors_div.appendChild(sensor_div);
-                    })(_j);
-
-                    }// end sensor loop
-                    // add sensors div to device div
-                    device_div.appendChild(sensors_div);
-                    //=================================================
-                    // End sensors section
-                    //=================================================
-
-
-
-                    //=================================================
-                    // Handle actuators
-                    //=================================================
-                    // iterate through the actuators
-                    var actuatorArray = deviceArray[i].actuators;
-                    var actuators_div = document.createElement("div");
-                    actuators_div.innerHTML = "<b><u>ACTUATORS:</u></b>";
-                    actuators_div.id = "actuators_div";
-                    for(var _k = 0; _k < actuatorArray.length; _k++) {
-
-                    (function(k) {
-                        // create a base div for each actuator
-                        var actuator_div =  document.createElement("div");
-                        // actuator id
-                        var actuatorId = actuatorArray[k].id;
-                        actuator_div.id = "actuator_div"+actuatorId;
-                        var actuator_id = document.createElement("div");
-                        actuator_id.className = "actuator_id";
-                        actuator_id.innerHTML = "<strong>ID:</strong> " + actuatorId;
-                        // actuator name
-                        var actuator_name = document.createElement("div");
-                        actuator_name.className = "name";
-                        actuator_name.innerHTML = "<strong>Name:</strong> " + actuatorArray[k].name;
-                        // actuator options
-                        var actuatorOptions = actuatorArray[k].options;
-                        var actuator_options = document.createElement("div");
-                        actuator_options.innerHTML = "<b><u>OPTIONS:</u></b><br />";
-                        actuator_options.className = "options";
-                        for(var _w = 0; _w < actuatorOptions.length; _w++) {
-                            // Use a closure to keep scope correct
-                            (function(w) {
-                                // create a button for each option
-                                var optionBtn = document.createElement("button");
-                                optionBtn.className = "option";
-                                var optionText = actuatorOptions[w];
-                                optionBtn.innerHTML = optionText;
-                                optionBtn.className = "btn btn-primary";
-                                optionBtn.setAttribute("style", "margin: 5px");
-                                optionBtn.addEventListener('click', function(event) {
-                                        console.log("Invoking option " + optionText);
-                                        var url = "http://192.168.174.150:8080/thing-web/devices/" + deviceId + "/actuators/" + actuatorId;
-                                        var http = new XMLHttpRequest();
-                                        http.open("POST", url, false);
-
-                                        //Send the proper header information along with the request
-                                        http.setRequestHeader("Content-type", "application/json");
-                                        http.send(JSON.stringify({data: optionText}));
-                                })
-                                actuator_options.appendChild(optionBtn);
-                        })(_w);
-                            
-                        }// end actuator options loop
-
-                        // add each actuator property to the actuator div
-                        actuator_div.appendChild(actuator_id);
-                        actuator_div.appendChild(actuator_name);
-                        actuator_div.appendChild(actuator_options);
-                        actuators_div.appendChild(actuator_div);
-                    })(_k);
-
-                    }// end actuator loop
-                    // add the actuators div to the device
-                    device_div.appendChild(actuators_div);
-                    //=================================================
-                    // End actuators section
-                    //=================================================
-
-
-                    // add device to device list div
-                    device_div_li.appendChild(device_div);
-                    // add the device into the devices div
-                    devicesElement.appendChild(device_div_li);
-
-                })(_i);
-
-                }// end device
-            }// end devices
+    script(type='text/javascript').
+        $( document ).ready(function() {      
+        });
