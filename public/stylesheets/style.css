@@ -7,7 +7,44 @@ a {
   color: #00B7FF;
 }
 
-#devices img {
-	width: 80px;
-	height: 80px;
+#devices {
+	list-style-type: none;
+}
+
+.device_icon {
+	width: 110px;
+	height: 110px;
+}
+
+.device .title {
+	font-weight: bold;
+}
+
+.device .value {
+	font-weight: normal;
+}
+
+.sensor {
+	margin-left: 30px;
+}
+
+.actuator {
+	margin-left: 30px;
+}
+
+.options {
+	margin-left: 30px;
+}
+
+.streamBtn {
+	font-weight: normal;
+	margin-top:10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+}
+
+.optionBtn {
+	margin-top:10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
 }

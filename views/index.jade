@@ -19,50 +19,83 @@ html
             div(class="panel-body")
                 ul#devices
                     each device, index in devices
-                        img(src="images/device_icon.png")
-                        li#device
-                            #device_id Device ID: #{device.sessionId}
-                            |     
-                            #manufacturer Manufacturer: #{device.manufacturer}
-                            |     
-                            #model Model: #{device.model}
-                            |     
-                            #geo Geo-location
-                              #longitude Longitude: #{device.geo.longitude}
-                              |       &#x9;
-                              #latitude Latitude: #{device.geo.latitude}
-                            | 
-                            #sensors
-                              each sensor, sindex in device.sensors
-                                  #sensor Sensor
-                                    #sensor_id Sensor ID: #{sensor.id}
-                                    |         
-                                    #sensor_name Name: #{sensor.name}
-                                    |         
-                                    #sensor_sense Capability: #{sensor.sense}
-                                    |         
-                                    #sensor_unit Unit: #{sensor.unit}
-                                    |         
-                                    #sensor_type Type: #{sensor.type}
-                                    |         
-                                    #sensor_stream
-                                      #sensor_chart
-                                      button Start stream
-                                      |           
-                                      button Stop stream
-                            |     
-                            #actuators
-                              each actuator, aindex in device.actuators
-                                  #actuator Actuator
-                                    #actuator_id Actuator ID: #{actuator.id}
-                                    |         
-                                    #actuator_name Name: #{actuator.name}
-                                    |         
-                                    #options Options
-                                      each option in actuator.options
-                                        button #{option}
+                        li.device
+                            img(src="images/device_icon.png").device_icon
+                            div.properties
+                                div.device_id.title Device ID:
+                                    div.value #{device.sessionId}
+                                |     
+                                div.manufacturer.title Manufacturer: 
+                                    div.value #{device.manufacturer}
+                                |     
+                                div.model.title Model: 
+                                    div.value #{device.model}
+                                |     
+                                div.geo.title Geo-location
+                                  div.longitude Longitude: 
+                                    div.value #{device.geo.longitude}
+                                  |       &#x9;
+                                  div.latitude.title Latitude:
+                                    div.value  #{device.geo.latitude}
+                                | 
+                                div.sensors
+                                  each sensor, sindex in device.sensors
+                                      div.sensor
+                                        div.sensor_id.title Sensor ID:
+                                            div.value  #{sensor.id}
+                                        |         
+                                        div.sensor_name.title Name:
+                                            div.value  #{sensor.name}
+                                        |         
+                                        div.sensor_sense.title Capability:
+                                            div.value  #{sensor.sense}
+                                        |         
+                                        div.sensor_unit.title Unit:
+                                            div.value  #{sensor.unit}
+                                        |         
+                                        div.sensor_type.title Type:
+                                            div.value  #{sensor.type}
+                                        |         
+                                        div.sensor_stream
+                                          div.sensor_chart
+                                          button.streamBtn Start stream
+                                          |           
+                                          button.streamBtn Stop stream
+                                |     
+                                div.actuators
+                                  each actuator, aindex in device.actuators
+                                      div.actuator
+                                        div.actuator_id.title Actuator ID: 
+                                            div.value #{actuator.id}
+                                        |         
+                                        div.actuator_name.title Name:
+                                            div.value #{actuator.name}
+                                        |         
+                                        div.options.title Options
+                                          each option in actuator.options
+                                            button.value.optionBtn #{option}
 
 
     script(type='text/javascript').
-        $( document ).ready(function() {      
+        $( document ).ready(function() {
+
+            var neuronURL = "http://localhost:9998/api/";
+
+            $(".properties").hide();
+
+            $(".device_icon").click(function(event) {
+                $(this).siblings().toggle();
+            });
+
+            $(".streamBtn").click(function(event) {
+
+                console.log("Inside startBtn click");
+                
+                var deviceId = $(this).closest(".properties").children().children().html();
+                var sensorId = $(this).closest(".sensor").children().children().html();
+
+                //var xhr = new XMLHttpRequest();
+                //var url = neuronURL + 
+
+            });
         });
