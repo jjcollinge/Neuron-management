@@ -58,9 +58,9 @@ html
                                         |         
                                         div.sensor_stream
                                           div.sensor_chart
-                                          button.streamBtn Start stream
-                                          |           
-                                          button.streamBtn Stop stream
+                                          sensor.
+                                          button.streamBtn.startSensorStream Start stream
+                                          button.streamBtn.stopSensorStream Stop stream
                                 |     
                                 div.actuators
                                   each actuator, aindex in device.actuators
@@ -81,21 +81,55 @@ html
 
             var neuronURL = "http://localhost:9998/api/";
 
+            // Toggle device properties by clicking the icon
             $(".properties").hide();
 
             $(".device_icon").click(function(event) {
                 $(this).siblings().toggle();
             });
 
-            $(".streamBtn").click(function(event) {
+            //Open a new eventsource on button press
+            $(".startSensorStream").click(function(event) {
 
-                console.log("Inside startBtn click");
-                
-                var deviceId = $(this).closest(".properties").children().children().html();
-                var sensorId = $(this).closest(".sensor").children().children().html();
+                var sensor = $(event.target).parents();
+                var deviceId = sensor.closest(".properties").children().children().html().trim();
+                var sensorId = sensor.closest(".sensor").children().children().html().trim();
+                var url = neuronURL + "devices/" + deviceId + "/sensors/" + sensorId + "/stream";
 
-                //var xhr = new XMLHttpRequest();
-                //var url = neuronURL + 
+                console.log("Starting sensor stream on URL: " + url);
+                sensor.eventSource = new EventSource(url);
 
+                sensor.eventSource.onopen = function() {
+                    console.log("Opened client SSE connection");
+                }
+                sensor.eventSource.onmessage = function(message) {
+                    console.log("new data received: " + message.data);
+                    var json = message.data;
+                    dataPack = JSON.parse(json);
+                    console.log("data: " + dataPack.data);
+                    if(dataPack.data == "CLOSE") {
+                        sensor.eventSource.close();
+                        delete sensor.eventSource;
+                    }
+                }
+                sensor.eventSource.onerror = function(error) {
+                    console.log("error: " + error.data);
+                }
+            });
+
+            //Close the eventsource on button press
+            $(".stopSensorStream").click(function(event) {
+
+                var btn = $(event.target);
+                var sensor = btn.parents();
+                var deviceId = sensor.closest(".properties").children().children().html().trim();
+                var sensorId = sensor.closest(".sensor").children().children().html().trim();
+                var url = neuronURL + "devices/" + deviceId + "/sensors/" + sensorId + "/stream";
+
+                var xhr = new XMLHttpRequest();
+                var params = "";
+                xhr.open("POST", url, true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(params);
             });
         });

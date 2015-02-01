@@ -12,6 +12,10 @@ a {
 }
 
 .device_icon {
+	margin-bottom: 20px;
+}
+
+.device_icon {
 	width: 110px;
 	height: 110px;
 }
