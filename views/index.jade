@@ -125,6 +125,8 @@ html
                 this.model.render();
             }
 
+            var charts = {};
+
             //Open a new eventsource on button press
             $(".startSensorStream").click(function(event) {
 
@@ -138,6 +140,8 @@ html
                 }
                 if(!sensor.chart.isReady()) {
                     sensor.chart.load("chart_dev"+deviceId+"_sen"+sensorId, "Live Sensor " + sensorId + " Data", "Count", "Unit");
+                    charts["chart_dev"+deviceId+"_sen"+sensorId] = sensor.chart;
+
                 }
 
                 console.log("Starting sensor stream on URL: " + url);
@@ -152,11 +156,15 @@ html
                     dataPack = JSON.parse(json);
                     console.log("data: " + dataPack.data);
                     if(dataPack.data == "CLOSE") {
-                        sensor.eventSource.close();
-                        delete sensor.eventSource;
+                        if(dataPack.sessionId == deviceId) {
+                            sensor.eventSource.close();
+                            delete sensor.eventSource;
+                        }
                     } else {
-                        if(sensor.chart.isReady()) {
-                            sensor.chart.update(dataPack.data);
+                        var chart = charts["chart_dev"+deviceId+"_sen"+sensorId];
+                        console.log("Updating chart: " + chart + " with id " + "chart_dev"+deviceId+"_sen"+sensorId);
+                        if(chart.isReady()) {
+                            chart.update(dataPack.data);
                         }
                     }
                 }
