@@ -6,6 +6,7 @@ html
         link(href='stylesheets/style.css', rel='stylesheet')
         script(type='text/javascript', src="https://code.jquery.com/jquery-2.1.3.js")
         script(type='text/javascript', src="javascripts/management.js")
+        script(type='text/javascript', src="javascripts/canvasjs.min.js")
 
         
     body
@@ -57,8 +58,7 @@ html
                                             div.value  #{sensor.type}
                                         |         
                                         div.sensor_stream
-                                          div.sensor_chart
-                                          sensor.
+                                          div(id= "chart_dev"+device.sessionId+"_sen"+sensor.id).sensor_chart
                                           button.streamBtn.startSensorStream Start stream
                                           button.streamBtn.stopSensorStream Stop stream
                                 |     
@@ -73,6 +73,7 @@ html
                                         |         
                                         div.options.title Options
                                           each option in actuator.options
+                                            br
                                             button.optionBtn #{option}
 
 
@@ -88,6 +89,42 @@ html
                 $(this).siblings().toggle();
             });
 
+            var Chart = function() {
+                console.log("Created new Chart");
+                this.dps = [];
+                this.model;
+                this.counter = 0;
+                this.ready = false;
+            }
+            Chart.prototype.load = function(id, title, xtitle, ytitle) {
+                console.log("load called, with parameters [" + id + ", " + title + ", " + xtitle + ", " + ytitle + "]");
+                this.model = new CanvasJS.Chart(id, {
+                        title : { text: title},
+                        axisX : { title: xtitle },
+                        axisY : { title: ytitle },
+                        data : [{
+                            type: "line",
+                            dataPoints : this.dps
+                            }]
+                        });
+                console.log("Model set: " + this.model);
+                this.model.render();
+                this.ready = true;
+            }
+            Chart.prototype.isReady = function(){
+                console.log("isReady called, returning " + this.ready);
+                return this.ready;
+            }
+            Chart.prototype.update = function(y_) {
+                console.log("update called, adding " + y_ + " data point. Counter is currently set to " + this.counter);
+                this.dps.push({x: this.counter,y: y_});
+                this.counter++;
+                if(this.dps.length > 10) {
+                    this.dps.shift();
+                }
+                this.model.render();
+            }
+
             //Open a new eventsource on button press
             $(".startSensorStream").click(function(event) {
 
@@ -95,6 +132,13 @@ html
                 var deviceId = sensor.closest(".properties").children().children().html().trim();
                 var sensorId = sensor.closest(".sensor").children().children().html().trim();
                 var url = neuronURL + "devices/" + deviceId + "/sensors/" + sensorId + "/stream";
+
+                if(sensor.chart == null) {
+                    sensor.chart = new Chart();
+                }
+                if(!sensor.chart.isReady()) {
+                    sensor.chart.load("chart_dev"+deviceId+"_sen"+sensorId, "Live Sensor " + sensorId + " Data", "Count", "Unit");
+                }
 
                 console.log("Starting sensor stream on URL: " + url);
                 sensor.eventSource = new EventSource(url);
@@ -110,6 +154,10 @@ html
                     if(dataPack.data == "CLOSE") {
                         sensor.eventSource.close();
                         delete sensor.eventSource;
+                    } else {
+                        if(sensor.chart.isReady()) {
+                            sensor.chart.update(dataPack.data);
+                        }
                     }
                 }
                 sensor.eventSource.onerror = function(error) {

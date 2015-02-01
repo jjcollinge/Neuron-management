@@ -47,7 +47,13 @@ a {
 	margin-bottom: 10px;
 }
 
+.sensor_chart {
+	width: 200px;
+	height: 200px;
+}
+
 .optionBtn {
+	font-weight: normal;
 	margin-top:10px;
 	margin-right: 10px;
 	margin-bottom: 10px;
