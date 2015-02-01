@@ -155,16 +155,18 @@ html
                     var json = message.data;
                     dataPack = JSON.parse(json);
                     console.log("data: " + dataPack.data);
-                    if(dataPack.data == "CLOSE") {
-                        if(dataPack.sessionId == deviceId) {
+                    if(dataPack.sessionId == deviceId) {
+
+                        if(dataPack.data == "CLOSE") {
                             sensor.eventSource.close();
                             delete sensor.eventSource;
-                        }
-                    } else {
-                        var chart = charts["chart_dev"+deviceId+"_sen"+sensorId];
-                        console.log("Updating chart: " + chart + " with id " + "chart_dev"+deviceId+"_sen"+sensorId);
-                        if(chart.isReady()) {
-                            chart.update(dataPack.data);
+                        } else {
+                            var chart = charts["chart_dev"+deviceId+"_sen"+sensorId];
+                            console.log("Updating chart: " + chart + " with id " + "chart_dev"+deviceId+"_sen"+sensorId);
+                            
+                            if(chart.isReady()) {
+                                chart.update(dataPack.data);
+                            }
                         }
                     }
                 }
