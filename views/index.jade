@@ -5,7 +5,6 @@ html
         link(href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css', rel='stylesheet')
         link(href='stylesheets/style.css', rel='stylesheet')
         script(type='text/javascript', src="https://code.jquery.com/jquery-2.1.3.js")
-        script(type='text/javascript', src="javascripts/management.js")
         script(type='text/javascript', src="javascripts/canvasjs.min.js")
 
         
@@ -14,8 +13,16 @@ html
             div.jumbotron
                 h1 Devices
                 p View, manage and control the devices in your network from here.
+                #searchTerms
+                    ul
+                        b Valid search terms  
+                        li sense=temperature
+                        li geo=51.31241&geo=-12.12314 (lon, lat)
         
         div(class="panel panel-default"  style="float: none; width: 960px; margin-left:auto; margin-right:auto;")  
+            form(method="get", action="/filter").searchField
+                input(name="search", type="text",  placeholder='search terms')
+                input(value="Submit", type="submit").submitBtn
             div(class="panel-heading") Available Devices     
             div(class="panel-body")
                 ul#devices
@@ -40,6 +47,9 @@ html
                                     div.value  #{device.geo.latitude}
                                 | 
                                 div.sensors
+                                  div.configureField
+                                    input(type="text",  placeholder='refresh rate').configureValue
+                                    button.submitBtn.configureBtn Submit
                                   each sensor, sindex in device.sensors
                                       div.sensor
                                         div.sensor_id.title Sensor ID:
@@ -89,6 +99,22 @@ html
                 $(this).siblings().toggle();
             });
 
+            $(".configureBtn").click(function(event) {
+                var btn = $(event.target);
+                var deviceId = btn.closest(".properties").children().children().html().trim();
+                var url = neuronURL + "devices/" + deviceId + "/configure";
+
+                var xhr = new XMLHttpRequest();
+                var params = btn.siblings().val();
+                params = "{ \"data\": " + params + " }";
+                console.log("params: " + params);
+                xhr.open("POST", url, true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(params);
+            });
+
+            $(".sensor_chart").hide();
+
             var Chart = function() {
                 console.log("Created new Chart");
                 this.dps = [];
@@ -131,6 +157,8 @@ html
             $(".startSensorStream").click(function(event) {
 
                 var sensor = $(event.target).parents();
+                $(event.target).siblings(".sensor_chart").show();
+                console.log(sensor.siblings(".sensor_chart"));
                 var deviceId = sensor.closest(".properties").children().children().html().trim();
                 var sensorId = sensor.closest(".sensor").children().children().html().trim();
                 var url = neuronURL + "devices/" + deviceId + "/sensors/" + sensorId + "/stream";
@@ -177,9 +205,9 @@ html
 
             //Close the eventsource on button press
             $(".stopSensorStream").click(function(event) {
-
-                var btn = $(event.target);
-                var sensor = btn.parents();
+                
+                var sensor = $(event.target).parents();
+                $(event.target).siblings(".sensor_chart").hide();
                 var deviceId = sensor.closest(".properties").children().children().html().trim();
                 var sensorId = sensor.closest(".sensor").children().children().html().trim();
                 var url = neuronURL + "devices/" + deviceId + "/sensors/" + sensorId + "/stream";

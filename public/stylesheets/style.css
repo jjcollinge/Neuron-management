@@ -58,3 +58,17 @@ a {
 	margin-right: 10px;
 	margin-bottom: 10px;
 }
+
+.searchField {
+	display: inline-block;
+	margin: 10px;
+}
+
+.submitBtn {
+	margin-left: 5px;
+}
+
+.configureField {
+	display: inline-block;
+	margin: 10px;
+}
