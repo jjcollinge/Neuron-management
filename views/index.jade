@@ -33,19 +33,18 @@ html
                                 div.device_id.title Device ID:
                                     div.value #{device.sessionId}
                                 |     
-                                div.manufacturer.title Manufacturer: 
-                                    div.value #{device.manufacturer}
-                                |     
-                                div.model.title Model: 
-                                    div.value #{device.model}
-                                |     
+                                div.name.title Name: 
+                                    div.value #{device.name}
+                                |         
                                 div.geo.title Geo-location
                                   div.longitude Longitude: 
                                     div.value #{device.geo.longitude}
                                   |       &#x9;
                                   div.latitude.title Latitude:
                                     div.value  #{device.geo.latitude}
-                                | 
+                                each tag, key in device.tags
+                                    div.tags.title #{key}:
+                                                div.value #{tag}
                                 div.sensors
                                   div.configureField
                                     input(type="text",  placeholder='refresh rate').configureValue
@@ -55,36 +54,38 @@ html
                                         div.sensor_id.title Sensor ID:
                                             div.value  #{sensor.id}
                                         |         
-                                        div.sensor_name.title Name:
-                                            div.value  #{sensor.name}
+                                        div.sensor_desc.title Description:
+                                            div.value  #{sensor.desc}
                                         |         
                                         div.sensor_sense.title Capability:
                                             div.value  #{sensor.sense}
                                         |         
                                         div.sensor_unit.title Unit:
                                             div.value  #{sensor.unit}
-                                        |         
-                                        div.sensor_type.title Type:
-                                            div.value  #{sensor.type}
-                                        |         
+                                        |               
                                         div.sensor_stream
                                           div(id= "chart_dev"+device.sessionId+"_sen"+sensor.id).sensor_chart
                                           button.streamBtn.startSensorStream Start stream
                                           button.streamBtn.stopSensorStream Stop stream
-                                |     
+                                        each tag, key in sensor.tags
+                                            div.tags.title #{key}
+                                                div.value #{tag} 
                                 div.actuators
                                   each actuator, aindex in device.actuators
                                       div.actuator
                                         div.actuator_id.title Actuator ID: 
                                             div.value #{actuator.id}
                                         |         
-                                        div.actuator_name.title Name:
-                                            div.value #{actuator.name}
+                                        div.actuator_desc.title Description:
+                                            div.value #{actuator.desc}
                                         |         
                                         div.options.title Options
                                           each option in actuator.options
                                             br
                                             button.optionBtn #{option}
+                                        each tag, key in actuator.tags
+                                            div.tags.title #{key}
+                                                div.value #{tag}
 
 
     script(type='text/javascript').

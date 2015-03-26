@@ -11,6 +11,11 @@ a {
 	list-style-type: none;
 }
 
+.device {
+	float: left;
+	margin-left: 20px;
+}
+
 .device_icon {
 	margin-bottom: 20px;
 }
@@ -26,6 +31,14 @@ a {
 
 .device .value {
 	font-weight: normal;
+}
+
+.device .longitude {
+	margin-left: 20px;
+}
+
+.device .latitude {
+	margin-left: 20px;
 }
 
 .sensor {
