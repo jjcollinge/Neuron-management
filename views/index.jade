@@ -35,16 +35,18 @@ html
                                 |     
                                 div.name.title Name: 
                                     div.value #{device.name}
-                                |         
-                                div.geo.title Geo-location
-                                  div.longitude Longitude: 
-                                    div.value #{device.geo.longitude}
-                                  |       &#x9;
-                                  div.latitude.title Latitude:
-                                    div.value  #{device.geo.latitude}
-                                each tag, key in device.tags
-                                    div.tags.title #{key}:
-                                                div.value #{tag}
+                                |   
+                                if device.geo
+                                    div.geo.title Geo-location
+                                      div.longitude Longitude: 
+                                        div.value #{device.geo.longitude}
+                                      |       &#x9;
+                                      div.latitude.title Latitude:
+                                        div.value  #{device.geo.latitude}
+                                if device.tags
+                                    each tag, key in device.tags
+                                        div.tags.title #{key}:
+                                                    div.value #{tag}
                                 div.sensors
                                   div.configureField
                                     input(type="text",  placeholder='refresh rate').configureValue
